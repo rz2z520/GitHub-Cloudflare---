@@ -160,11 +160,6 @@ function goBackToPortfolio(fallbackHash = '#selection') {
   window.location.href = `/${fallbackHash}`
 }
 
-function openOnDoubleClick(event, href) {
-  event.preventDefault()
-  window.location.href = href
-}
-
 function useScrollReveal() {
   useEffect(() => {
     const revealItems = document.querySelectorAll('.reveal-on-scroll')
@@ -271,7 +266,7 @@ function OtherWorks() {
         <button className="carousel-arrow carousel-arrow-left" type="button" aria-label="上一张" onClick={() => move(-1)}>
           ‹
         </button>
-        <a className="other-main-card" href={`/${active.id}/`} onClick={(event) => event.preventDefault()} onDoubleClick={(event) => openOnDoubleClick(event, `/${active.id}/`)}>
+        <a className="other-main-card" href={`/${active.id}/`}>
           <span className="work-number">{active.number}</span>
           <LazyImage className="other-main-image" src={active.image} mobileSrc={mobileAsset(active.image)} alt={active.displayTitle} />
           <PlayIcon variant={blackPlayOtherWorkIds.has(active.id) ? 'black' : 'light'} />
@@ -303,11 +298,18 @@ function FilmStage({ frames, effect, dissolveFrames, shouldLoadFrames = true }) 
       {shouldLoadFrames &&
         effect === 'dissolve' &&
         dissolveFrames?.map((frame, index) => (
-          <LazyImage key={`dissolve-${frame}-${index}`} className={`film-frame film-frame-${index + 1} dissolve-frame`} src={frame} alt="" />
+          <LazyImage
+            key={`dissolve-${frame}-${index}`}
+            className={`film-frame film-frame-${index + 1} dissolve-frame`}
+            src={frame}
+            mobileSrc={mobileAsset(frame)}
+            sizes="(max-width: 760px) 30vw, 340px"
+            alt=""
+          />
         ))}
       {shouldLoadFrames &&
         frames.map((frame, index) => (
-          <LazyImage key={`${frame}-${index}`} className={`film-frame film-frame-${index + 1}`} src={frame} alt="" />
+          <LazyImage key={`${frame}-${index}`} className={`film-frame film-frame-${index + 1}`} src={frame} mobileSrc={mobileAsset(frame)} sizes="(max-width: 760px) 30vw, 340px" alt="" />
         ))}
       <LazyImage className="film-strip" src="/assets/film-strip.png" alt="" aria-hidden="true" />
       <span className="film-flash" aria-hidden="true"></span>
@@ -363,7 +365,7 @@ function ThumbnailFilmStrip({ shouldLoadFrames }) {
     <div className="thumbnail-film-stage">
       {shouldLoadFrames &&
         thumbnailFrames.map((frame, index) => (
-          <LazyImage key={frame} className={`thumbnail-frame thumbnail-frame-${index + 1}`} src={frame} alt="" />
+          <LazyImage key={frame} className={`thumbnail-frame thumbnail-frame-${index + 1}`} src={frame} mobileSrc={mobileAsset(frame)} sizes="(max-width: 760px) 16vw, 180px" alt="" />
         ))}
       <LazyImage className="double-film-strip" src="/assets/double-film-strip.png" alt="" aria-hidden="true" />
     </div>
@@ -412,7 +414,7 @@ function ShotMaterials() {
   return (
     <section className="shot-materials reveal-on-scroll" id="shot-materials">
       <SectionTitle english="SHOT MATERIALS" chinese="拍摄过的素材" />
-      <a className="shot-materials-card" href="/shot-materials/" onClick={(event) => event.preventDefault()} onDoubleClick={(event) => openOnDoubleClick(event, '/shot-materials/')}>
+      <a className="shot-materials-card" href="/shot-materials/">
         <LazyImage className="shot-materials-image" src="/assets/shot-materials-33.jpg" mobileSrc="/assets/mobile/shot-materials-33.jpg" alt="拍摄过的素材" />
         <LazyImage className="shot-materials-type" src="/assets/shot-materials-type.png" alt="星空与深空摄影 延时摄影&自然风光 星空 自然 时间" />
         <PlayIcon />
@@ -425,7 +427,7 @@ function MemorySection() {
   return (
     <section className="memory-section reveal-on-scroll" id="memory">
       <SectionTitle english="AND" chinese="以及" />
-      <a className="memory-card" href="/memory/" onClick={(event) => event.preventDefault()} onDoubleClick={(event) => openOnDoubleClick(event, '/memory/')}>
+      <a className="memory-card" href="/memory/">
         <LazyImage className="memory-image" src="/assets/memory.jpg" mobileSrc="/assets/mobile/memory.jpg" alt="回忆" />
         <LazyImage className="memory-type" src="/assets/memory-type.png" alt="回忆" />
       </a>
@@ -532,7 +534,7 @@ function HomePage() {
 
         <section className="selection reveal-on-scroll" id="selection">
           <SectionTitle english="SELECTION" chinese="精选合集" />
-          <a className="selection-card" href="/selection/" onClick={(event) => event.preventDefault()} onDoubleClick={(event) => openOnDoubleClick(event, '/selection/')}>
+          <a className="selection-card" href="/selection/">
             <span className="play-image-frame">
               <LazyImage src="/assets/selection-cover.jpg" mobileSrc="/assets/mobile/selection-cover.jpg" alt="精选合集" />
               <PlayIcon />
@@ -543,7 +545,7 @@ function HomePage() {
         <section className="featured reveal-on-scroll" id="featured">
           <SectionTitle english="FEATURED WORKS" chinese="代表作品" />
           <div className="featured-grid">
-            <a className="work-card" href="/wild-grass/" onClick={(event) => event.preventDefault()} onDoubleClick={(event) => openOnDoubleClick(event, '/wild-grass/')}>
+            <a className="work-card" href="/wild-grass/">
               <span className="play-image-frame work-image-frame">
                 <LazyImage src="/assets/wild-grass.jpg" mobileSrc="/assets/mobile/wild-grass.jpg" sizes="(max-width: 760px) 48vw, 340px" alt="故事片代表作《野草》" />
                 <PlayIcon />
@@ -556,7 +558,7 @@ function HomePage() {
                 </div>
               </div>
             </a>
-            <a className="work-card" href="/heart-home/" onClick={(event) => event.preventDefault()} onDoubleClick={(event) => openOnDoubleClick(event, '/heart-home/')}>
+            <a className="work-card" href="/heart-home/">
               <span className="play-image-frame work-image-frame">
                 <LazyImage src="/assets/heart-home.jpg" mobileSrc="/assets/mobile/heart-home.jpg" sizes="(max-width: 760px) 48vw, 340px" alt="故事片代表作《何以栖心》" />
                 <PlayIcon variant="black" />
@@ -570,7 +572,7 @@ function HomePage() {
               </div>
             </a>
           </div>
-          <a className="work-card work-card-wide" href="/under-sky/" onClick={(event) => event.preventDefault()} onDoubleClick={(event) => openOnDoubleClick(event, '/under-sky/')}>
+          <a className="work-card work-card-wide" href="/under-sky/">
             <span className="play-image-frame work-image-frame">
               <LazyImage src="/assets/under-sky.jpg" mobileSrc="/assets/mobile/under-sky.jpg" alt="纪录片代表作《苍穹之下》" />
               <PlayIcon />
@@ -594,12 +596,14 @@ function HomePage() {
 }
 
 function DetailPage({ english, title, embedSrc, image, imageAlt = '', imageVariant = '', description, backTarget = '#selection', hideCopy = false }) {
+  const [loadPlayer, setLoadPlayer] = useState(false)
+
   return (
     <>
       <Nav />
       <main className="detail-page">
         <div className="detail-inner">
-          <button className="back-button" type="button" onDoubleClick={() => goBackToPortfolio(backTarget)}>
+          <button className="back-button" type="button" onClick={() => goBackToPortfolio(backTarget)}>
             返回作品集
           </button>
           <div className="detail-heading">
@@ -608,7 +612,20 @@ function DetailPage({ english, title, embedSrc, image, imageAlt = '', imageVaria
           </div>
           {embedSrc ? (
             <div className="detail-video-frame">
-              <iframe className="detail-video detail-embed" src={embedSrc} title={title} allowFullScreen allow="autoplay; fullscreen; picture-in-picture; encrypted-media" frameBorder="0"></iframe>
+              {loadPlayer ? (
+                <iframe
+                  className="detail-video detail-embed"
+                  src={embedSrc}
+                  title={title}
+                  allowFullScreen
+                  allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
+                  frameBorder="0"
+                ></iframe>
+              ) : (
+                <button className="detail-player-button" type="button" aria-label={`播放${title}`} onClick={() => setLoadPlayer(true)}>
+                  <img src="/assets/play-icon.png" alt="" aria-hidden="true" />
+                </button>
+              )}
             </div>
           ) : image ? (
             <div className={`detail-image-frame ${imageVariant ? `detail-image-frame-${imageVariant}` : ''}`}>
