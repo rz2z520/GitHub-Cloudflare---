@@ -205,6 +205,37 @@ function LazyImage(props) {
   return <img loading="lazy" decoding="async" {...props} />
 }
 
+function useNearViewport(rootMargin = '360px') {
+  const ref = useRef(null)
+  const [isNear, setIsNear] = useState(false)
+
+  useEffect(() => {
+    const node = ref.current
+    if (!node || isNear) return
+
+    if (!('IntersectionObserver' in window)) {
+      setIsNear(true)
+      return
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return
+
+        setIsNear(true)
+        observer.disconnect()
+      },
+      { rootMargin, threshold: 0.01 },
+    )
+
+    observer.observe(node)
+
+    return () => observer.disconnect()
+  }, [isNear, rootMargin])
+
+  return [ref, isNear]
+}
+
 function ClapHand() {
   return <img className="clap-hand" src="/assets/clap-hand.png" alt="" aria-hidden="true" />
 }
@@ -265,23 +296,25 @@ function OtherWorks() {
   )
 }
 
-function FilmStage({ frames, effect, dissolveFrames }) {
+function FilmStage({ frames, effect, dissolveFrames, shouldLoadFrames = true }) {
   return (
     <div className="film-stage">
-      {effect === 'dissolve' &&
+      {shouldLoadFrames &&
+        effect === 'dissolve' &&
         dissolveFrames?.map((frame, index) => (
           <LazyImage key={`dissolve-${frame}-${index}`} className={`film-frame film-frame-${index + 1} dissolve-frame`} src={frame} alt="" />
         ))}
-      {frames.map((frame, index) => (
-        <LazyImage key={`${frame}-${index}`} className={`film-frame film-frame-${index + 1}`} src={frame} alt="" />
-      ))}
+      {shouldLoadFrames &&
+        frames.map((frame, index) => (
+          <LazyImage key={`${frame}-${index}`} className={`film-frame film-frame-${index + 1}`} src={frame} alt="" />
+        ))}
       <img className="film-strip" src="/assets/film-strip.png" alt="" aria-hidden="true" />
       <span className="film-flash" aria-hidden="true"></span>
     </div>
   )
 }
 
-function DayNightDemo() {
+function DayNightDemo({ shouldLoadFrames }) {
   const [activeSet, setActiveSet] = useState(0)
   const [effect, setEffect] = useState('')
   const [dissolveTarget, setDissolveTarget] = useState(null)
@@ -309,7 +342,7 @@ function DayNightDemo() {
 
   return (
     <div className={`film-demo day-night-demo ${effect}`}>
-      <FilmStage frames={frames} effect={effect} dissolveFrames={dissolveFrames} />
+      <FilmStage frames={frames} effect={effect} dissolveFrames={dissolveFrames} shouldLoadFrames={shouldLoadFrames} />
       <div className="dual-toggle-row">
         <button className="color-toggle day-night-toggle" type="button" onClick={() => changeSet(1)} aria-label="切换到第一组日转夜静帧">
           <img className="color-button-image" src="/assets/color-button.png" alt="TRY" />
@@ -324,18 +357,20 @@ function DayNightDemo() {
   )
 }
 
-function ThumbnailFilmStrip() {
+function ThumbnailFilmStrip({ shouldLoadFrames }) {
   return (
     <div className="thumbnail-film-stage">
-      {thumbnailFrames.map((frame, index) => (
-        <LazyImage key={frame} className={`thumbnail-frame thumbnail-frame-${index + 1}`} src={frame} alt="" />
-      ))}
+      {shouldLoadFrames &&
+        thumbnailFrames.map((frame, index) => (
+          <LazyImage key={frame} className={`thumbnail-frame thumbnail-frame-${index + 1}`} src={frame} alt="" />
+        ))}
       <img className="double-film-strip" src="/assets/double-film-strip.png" alt="" aria-hidden="true" />
     </div>
   )
 }
 
 function ColorStills() {
+  const [sectionRef, shouldLoadFrames] = useNearViewport('420px')
   const [graded, setGraded] = useState(false)
   const [effect, setEffect] = useState('')
   const frames = colorFrameSets[graded ? 1 : 0]
@@ -357,17 +392,17 @@ function ColorStills() {
   }
 
   return (
-    <section className="color-stills reveal-on-scroll" id="color-stills">
+    <section className="color-stills reveal-on-scroll" id="color-stills" ref={sectionRef}>
       <SectionTitle english="COLOR STILLS" chinese="调色静帧演示" />
       <div className={`film-demo ${effect}`}>
-        <FilmStage frames={frames} effect={effect} dissolveFrames={dissolveFrames} />
+        <FilmStage frames={frames} effect={effect} dissolveFrames={dissolveFrames} shouldLoadFrames={shouldLoadFrames} />
         <button className="color-toggle" type="button" onClick={toggleFrames} aria-label="切换调色静帧">
           <img className="color-button-image" src="/assets/color-button.png" alt="TRY" />
           <ClapHand />
         </button>
       </div>
-      <DayNightDemo />
-      <ThumbnailFilmStrip />
+      <DayNightDemo shouldLoadFrames={shouldLoadFrames} />
+      <ThumbnailFilmStrip shouldLoadFrames={shouldLoadFrames} />
     </section>
   )
 }
