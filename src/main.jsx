@@ -385,6 +385,7 @@ function MemorySection() {
 
 function HomePage() {
   useScrollReveal()
+  const [loadHeroVideo, setLoadHeroVideo] = useState(false)
   const heroMarkRef = useRef(null)
   const heroMotionRef = useRef({
     currentX: 0,
@@ -395,7 +396,23 @@ function HomePage() {
   })
 
   useEffect(() => {
+    let idleCallback = 0
+    const loadVideo = () => setLoadHeroVideo(true)
+    const timeout = window.setTimeout(() => {
+      if ('requestIdleCallback' in window) {
+        idleCallback = window.requestIdleCallback(loadVideo, { timeout: 1200 })
+        return
+      }
+
+      loadVideo()
+    }, 900)
+
     return () => {
+      window.clearTimeout(timeout)
+      if (idleCallback && 'cancelIdleCallback' in window) {
+        window.cancelIdleCallback(idleCallback)
+      }
+
       if (heroMotionRef.current.frame) {
         window.cancelAnimationFrame(heroMotionRef.current.frame)
       }
@@ -465,7 +482,8 @@ function HomePage() {
       <Nav />
       <main>
         <section className="hero" aria-label="首页视频" onPointerMove={updateHeroMarkStretch} onPointerLeave={resetHeroMarkStretch}>
-          <video className="hero-video" src="/assets/hero-video.mp4" autoPlay muted loop playsInline />
+          <img className={`hero-poster ${loadHeroVideo ? 'is-hidden' : ''}`} src="/assets/hero-poster.png" alt="" aria-hidden="true" />
+          {loadHeroVideo && <video className="hero-video" src="/assets/hero-video.mp4" autoPlay muted loop playsInline preload="none" />}
           <button className="hero-mark" type="button" aria-label="无尽探索 无限进步" ref={heroMarkRef}>
             <span className="hero-mark-layer hero-mark-layer-left" aria-hidden="true"></span>
             <span className="hero-mark-layer hero-mark-layer-right" aria-hidden="true"></span>
