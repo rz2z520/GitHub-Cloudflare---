@@ -251,16 +251,6 @@ function ClapHand() {
   return <img className="clap-hand" src="/assets/clap-hand.png" alt="" aria-hidden="true" />
 }
 
-function shouldAutoLoadHeroVideo() {
-  const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection
-  const prefersSavingData = Boolean(connection?.saveData)
-  const slowConnection = ['slow-2g', '2g', '3g'].includes(connection?.effectiveType)
-  const touchDevice = window.matchMedia('(pointer: coarse)').matches
-  const narrowScreen = window.matchMedia('(max-width: 900px)').matches
-
-  return !prefersSavingData && !slowConnection && !touchDevice && !narrowScreen
-}
-
 function OtherWorks() {
   const [activeIndex, setActiveIndex] = useState(0)
   const active = otherWorks[activeIndex]
@@ -319,7 +309,7 @@ function FilmStage({ frames, effect, dissolveFrames, shouldLoadFrames = true }) 
         frames.map((frame, index) => (
           <LazyImage key={`${frame}-${index}`} className={`film-frame film-frame-${index + 1}`} src={frame} alt="" />
         ))}
-      <img className="film-strip" src="/assets/film-strip.png" alt="" aria-hidden="true" />
+      <LazyImage className="film-strip" src="/assets/film-strip.png" alt="" aria-hidden="true" />
       <span className="film-flash" aria-hidden="true"></span>
     </div>
   )
@@ -375,7 +365,7 @@ function ThumbnailFilmStrip({ shouldLoadFrames }) {
         thumbnailFrames.map((frame, index) => (
           <LazyImage key={frame} className={`thumbnail-frame thumbnail-frame-${index + 1}`} src={frame} alt="" />
         ))}
-      <img className="double-film-strip" src="/assets/double-film-strip.png" alt="" aria-hidden="true" />
+      <LazyImage className="double-film-strip" src="/assets/double-film-strip.png" alt="" aria-hidden="true" />
     </div>
   )
 }
@@ -456,32 +446,7 @@ function HomePage() {
   })
 
   useEffect(() => {
-    let idleCallback = 0
-    const loadVideo = () => setLoadHeroVideo(true)
-
-    if (!shouldAutoLoadHeroVideo()) {
-      return () => {
-        if (heroMotionRef.current.frame) {
-          window.cancelAnimationFrame(heroMotionRef.current.frame)
-        }
-      }
-    }
-
-    const timeout = window.setTimeout(() => {
-      if ('requestIdleCallback' in window) {
-        idleCallback = window.requestIdleCallback(loadVideo, { timeout: 2500 })
-        return
-      }
-
-      loadVideo()
-    }, 2400)
-
     return () => {
-      window.clearTimeout(timeout)
-      if (idleCallback && 'cancelIdleCallback' in window) {
-        window.cancelIdleCallback(idleCallback)
-      }
-
       if (heroMotionRef.current.frame) {
         window.cancelAnimationFrame(heroMotionRef.current.frame)
       }
@@ -553,6 +518,11 @@ function HomePage() {
         <section className="hero" aria-label="首页视频" onPointerMove={updateHeroMarkStretch} onPointerLeave={resetHeroMarkStretch}>
           <img className={`hero-poster ${loadHeroVideo ? 'is-hidden' : ''}`} src="/assets/hero-poster.png" alt="" aria-hidden="true" />
           {loadHeroVideo && <video className="hero-video" src="/assets/hero-video.mp4" autoPlay muted loop playsInline preload="none" />}
+          {!loadHeroVideo && (
+            <button className="hero-play-button" type="button" aria-label="播放首页视频" onClick={() => setLoadHeroVideo(true)}>
+              <img src="/assets/play-icon.png" alt="" aria-hidden="true" />
+            </button>
+          )}
           <button className="hero-mark" type="button" aria-label="无尽探索 无限进步" ref={heroMarkRef}>
             <span className="hero-mark-layer hero-mark-layer-left" aria-hidden="true"></span>
             <span className="hero-mark-layer hero-mark-layer-right" aria-hidden="true"></span>
