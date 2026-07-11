@@ -201,8 +201,19 @@ function PlayIcon({ variant = 'light' }) {
   return <img className="play-icon" src={src} alt="" aria-hidden="true" />
 }
 
-function LazyImage(props) {
-  return <img loading="lazy" decoding="async" {...props} />
+function mobileAsset(src) {
+  return src?.replace('/assets/', '/assets/mobile/')
+}
+
+function LazyImage({ mobileSrc, sizes = '(max-width: 760px) 100vw, 880px', src, ...props }) {
+  const responsiveProps = mobileSrc
+    ? {
+        srcSet: `${mobileSrc} 760w, ${src} 1500w`,
+        sizes,
+      }
+    : {}
+
+  return <img loading="lazy" decoding="async" src={src} {...responsiveProps} {...props} />
 }
 
 function useNearViewport(rootMargin = '360px') {
@@ -265,14 +276,14 @@ function OtherWorks() {
       <SectionTitle english="OTHER WORKS" chinese="其他代表作品" />
       <div className="other-carousel">
         <div className="side-preview side-preview-left" aria-hidden="true">
-          <LazyImage src={previous.image} alt="" />
+          <LazyImage src={previous.image} mobileSrc={mobileAsset(previous.image)} alt="" />
         </div>
         <button className="carousel-arrow carousel-arrow-left" type="button" aria-label="上一张" onClick={() => move(-1)}>
           ‹
         </button>
         <a className="other-main-card" href={`/${active.id}/`} onClick={(event) => event.preventDefault()} onDoubleClick={(event) => openOnDoubleClick(event, `/${active.id}/`)}>
           <span className="work-number">{active.number}</span>
-          <LazyImage className="other-main-image" src={active.image} alt={active.displayTitle} />
+          <LazyImage className="other-main-image" src={active.image} mobileSrc={mobileAsset(active.image)} alt={active.displayTitle} />
           <PlayIcon variant={blackPlayOtherWorkIds.has(active.id) ? 'black' : 'light'} />
         </a>
         <button className="carousel-arrow carousel-arrow-right" type="button" aria-label="下一张" onClick={() => move(1)}>
@@ -280,7 +291,7 @@ function OtherWorks() {
         </button>
         <div className="side-preview side-preview-right" aria-hidden="true">
           <span className="side-number">{next.number}</span>
-          <LazyImage src={next.image} alt="" />
+          <LazyImage src={next.image} mobileSrc={mobileAsset(next.image)} alt="" />
         </div>
       </div>
       <div className="other-caption">
@@ -412,7 +423,7 @@ function ShotMaterials() {
     <section className="shot-materials reveal-on-scroll" id="shot-materials">
       <SectionTitle english="SHOT MATERIALS" chinese="拍摄过的素材" />
       <a className="shot-materials-card" href="/shot-materials/" onClick={(event) => event.preventDefault()} onDoubleClick={(event) => openOnDoubleClick(event, '/shot-materials/')}>
-        <LazyImage className="shot-materials-image" src="/assets/shot-materials-33.jpg" alt="拍摄过的素材" />
+        <LazyImage className="shot-materials-image" src="/assets/shot-materials-33.jpg" mobileSrc="/assets/mobile/shot-materials-33.jpg" alt="拍摄过的素材" />
         <LazyImage className="shot-materials-type" src="/assets/shot-materials-type.png" alt="星空与深空摄影 延时摄影&自然风光 星空 自然 时间" />
         <PlayIcon />
       </a>
@@ -425,7 +436,7 @@ function MemorySection() {
     <section className="memory-section reveal-on-scroll" id="memory">
       <SectionTitle english="AND" chinese="以及" />
       <a className="memory-card" href="/memory/" onClick={(event) => event.preventDefault()} onDoubleClick={(event) => openOnDoubleClick(event, '/memory/')}>
-        <LazyImage className="memory-image" src="/assets/memory.jpg" alt="回忆" />
+        <LazyImage className="memory-image" src="/assets/memory.jpg" mobileSrc="/assets/mobile/memory.jpg" alt="回忆" />
         <LazyImage className="memory-type" src="/assets/memory-type.png" alt="回忆" />
       </a>
     </section>
@@ -553,7 +564,7 @@ function HomePage() {
           <SectionTitle english="SELECTION" chinese="精选合集" />
           <a className="selection-card" href="/selection/" onClick={(event) => event.preventDefault()} onDoubleClick={(event) => openOnDoubleClick(event, '/selection/')}>
             <span className="play-image-frame">
-              <LazyImage src="/assets/selection-cover.jpg" alt="精选合集" />
+              <LazyImage src="/assets/selection-cover.jpg" mobileSrc="/assets/mobile/selection-cover.jpg" alt="精选合集" />
               <PlayIcon />
             </span>
           </a>
@@ -564,7 +575,7 @@ function HomePage() {
           <div className="featured-grid">
             <a className="work-card" href="/wild-grass/" onClick={(event) => event.preventDefault()} onDoubleClick={(event) => openOnDoubleClick(event, '/wild-grass/')}>
               <span className="play-image-frame work-image-frame">
-                <LazyImage src="/assets/wild-grass.jpg" alt="故事片代表作《野草》" />
+                <LazyImage src="/assets/wild-grass.jpg" mobileSrc="/assets/mobile/wild-grass.jpg" sizes="(max-width: 760px) 48vw, 340px" alt="故事片代表作《野草》" />
                 <PlayIcon />
               </span>
               <div className="featured-caption">
@@ -577,7 +588,7 @@ function HomePage() {
             </a>
             <a className="work-card" href="/heart-home/" onClick={(event) => event.preventDefault()} onDoubleClick={(event) => openOnDoubleClick(event, '/heart-home/')}>
               <span className="play-image-frame work-image-frame">
-                <LazyImage src="/assets/heart-home.jpg" alt="故事片代表作《何以栖心》" />
+                <LazyImage src="/assets/heart-home.jpg" mobileSrc="/assets/mobile/heart-home.jpg" sizes="(max-width: 760px) 48vw, 340px" alt="故事片代表作《何以栖心》" />
                 <PlayIcon variant="black" />
               </span>
               <div className="featured-caption">
@@ -591,7 +602,7 @@ function HomePage() {
           </div>
           <a className="work-card work-card-wide" href="/under-sky/" onClick={(event) => event.preventDefault()} onDoubleClick={(event) => openOnDoubleClick(event, '/under-sky/')}>
             <span className="play-image-frame work-image-frame">
-              <LazyImage src="/assets/under-sky.jpg" alt="纪录片代表作《苍穹之下》" />
+              <LazyImage src="/assets/under-sky.jpg" mobileSrc="/assets/mobile/under-sky.jpg" alt="纪录片代表作《苍穹之下》" />
               <PlayIcon />
             </span>
             <div className="featured-caption featured-caption-wide">
