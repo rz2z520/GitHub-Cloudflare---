@@ -120,6 +120,8 @@ const dayNightFrameSets = [
 
 const thumbnailFrames = Array.from({ length: 12 }, (_, index) => `/assets/thumb-frame-${index + 1}.jpg`)
 
+const heroVideoSrc = '/assets/hero-video.mp4'
+
 const blackPlayOtherWorkIds = new Set(['other-weeds', 'other-wild-growth', 'other-fate-journey', 'other-xun', 'other-home-letters'])
 
 function Nav() {
@@ -531,7 +533,7 @@ function HomePage() {
       <main>
         <section className="hero" aria-label="首页视频" onPointerMove={updateHeroMarkStretch} onPointerLeave={resetHeroMarkStretch}>
           <img className={`hero-poster ${loadHeroVideo ? 'is-hidden' : ''}`} src="/assets/hero-poster.png" alt="" aria-hidden="true" />
-          {loadHeroVideo && <video className="hero-video" src="/assets/hero-video.mp4" autoPlay muted loop playsInline preload="none" />}
+          {loadHeroVideo && <video className="hero-video" src={heroVideoSrc} autoPlay muted loop playsInline preload="none" />}
           {!loadHeroVideo && (
             <button className="hero-play-button" type="button" aria-label="播放首页视频" onClick={() => setLoadHeroVideo(true)}>
               <img src="/assets/play-icon.png" alt="" aria-hidden="true" />
