@@ -200,6 +200,18 @@ function mobileAsset(src) {
   return src?.replace('/assets/', '/assets/mobile/')
 }
 
+function xpcEmbedSrc(src) {
+  try {
+    const url = new URL(src)
+    url.searchParams.set('autoplay', '0')
+    url.searchParams.set('disableAutoPlay', 'true')
+    url.searchParams.set('playsInline', '1')
+    return url.toString()
+  } catch {
+    return src
+  }
+}
+
 function LazyImage({ mobileSrc, sizes = '(max-width: 760px) 100vw, 880px', src, ...props }) {
   const responsiveProps = mobileSrc
     ? {
@@ -615,7 +627,7 @@ function DetailPage({ english, title, embedSrc, image, imageAlt = '', imageVaria
               {loadPlayer ? (
                 <iframe
                   className="detail-video detail-embed"
-                  src={embedSrc}
+                  src={xpcEmbedSrc(embedSrc)}
                   title={title}
                   allowFullScreen
                   allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
