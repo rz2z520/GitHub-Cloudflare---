@@ -21,7 +21,7 @@ const otherWorks = [
     number: '01',
     title: '野草',
     displayTitle: '《野草》',
-    role: '导演',
+    role: '导演/摄影师/剪辑师',
     image: '/assets/other-weeds.jpg',
     embedSrc: 'https://player.xinpianchang.com/?aid=13746249&mid=NK0mw6RpVNDwW1na',
   },
@@ -123,6 +123,85 @@ const thumbnailFrames = Array.from({ length: 12 }, (_, index) => `/assets/thumb-
 
 const blackPlayOtherWorkIds = new Set(['other-weeds', 'other-wild-growth', 'other-fate-journey', 'other-xun', 'other-home-letters'])
 
+function mobileAsset(src) {
+  return src.replace('/assets/', '/assets/mobile/')
+}
+
+function ResponsiveImage({ className, src, mobileSrc = mobileAsset(src), alt = '', eager = false }) {
+  return (
+    <img
+      className={className}
+      src={src}
+      srcSet={`${mobileSrc} 760w, ${src} 1280w`}
+      sizes="(max-width: 760px) 100vw, 1280px"
+      alt={alt}
+      loading={eager ? 'eager' : 'lazy'}
+      decoding={eager ? 'sync' : 'async'}
+      fetchPriority={eager ? 'high' : 'auto'}
+    />
+  )
+}
+
+function HeroVideo() {
+  const videoRef = useRef(null)
+  const [shouldLoadVideo, setShouldLoadVideo] = useState(false)
+  const [hasStartedVideo, setHasStartedVideo] = useState(false)
+
+  useEffect(() => {
+    const startDeferredLoad = () => {
+      const loadWhenIdle = () => setShouldLoadVideo(true)
+
+      if ('requestIdleCallback' in window) {
+        window.requestIdleCallback(loadWhenIdle, { timeout: 4200 })
+        return
+      }
+
+      window.setTimeout(loadWhenIdle, 3000)
+    }
+
+    if (document.readyState === 'complete') {
+      startDeferredLoad()
+      return
+    }
+
+    window.addEventListener('load', startDeferredLoad, { once: true })
+
+    return () => window.removeEventListener('load', startDeferredLoad)
+  }, [])
+
+  useEffect(() => {
+    if (!shouldLoadVideo || !hasStartedVideo) return
+
+    videoRef.current?.play().catch(() => {})
+  }, [hasStartedVideo, shouldLoadVideo])
+
+  const startVideo = () => {
+    setShouldLoadVideo(true)
+    setHasStartedVideo(true)
+  }
+
+  return (
+    <>
+      {shouldLoadVideo && (
+        <video
+          className={`hero-video ${hasStartedVideo ? 'is-started' : ''}`}
+          ref={videoRef}
+          src="/assets/hero-video.mp4"
+          preload={hasStartedVideo ? 'auto' : 'metadata'}
+          muted
+          loop
+          playsInline
+        />
+      )}
+      {!hasStartedVideo && (
+        <button className="hero-video-play" type="button" aria-label="播放首页视频" onClick={startVideo}>
+          <PlayIcon />
+        </button>
+      )}
+    </>
+  )
+}
+
 const featuredPosters = [
   {
     title: '《野草》海报',
@@ -174,11 +253,6 @@ function goBackToPortfolio(fallbackHash = '#selection') {
   }
 
   window.location.href = `/${fallbackHash}`
-}
-
-function openOnDoubleClick(event, href) {
-  event.preventDefault()
-  window.location.href = href
 }
 
 function useScrollReveal() {
@@ -234,17 +308,17 @@ function FeaturedPosterCarousel() {
   return (
     <div className="featured-poster-carousel" aria-label="代表作品海报">
       <div className="featured-poster-side featured-poster-side-left" aria-hidden="true">
-        <img src={previous.image} alt="" />
+        <ResponsiveImage src={previous.image} alt="" />
       </div>
       <button className="poster-arrow poster-arrow-left" type="button" aria-label="上一张海报" onClick={() => move(-1)}>
         ‹
       </button>
-      <img className="featured-poster-main" src={active.image} alt={active.title} />
+      <ResponsiveImage className="featured-poster-main" src={active.image} alt={active.title} />
       <button className="poster-arrow poster-arrow-right" type="button" aria-label="下一张海报" onClick={() => move(1)}>
         ›
       </button>
       <div className="featured-poster-side featured-poster-side-right" aria-hidden="true">
-        <img src={next.image} alt="" />
+        <ResponsiveImage src={next.image} alt="" />
       </div>
     </div>
   )
@@ -265,14 +339,14 @@ function OtherWorks() {
       <SectionTitle english="OTHER WORKS" chinese="其他代表作品" />
       <div className="other-carousel">
         <div className="side-preview side-preview-left" aria-hidden="true">
-          <img src={previous.image} alt="" />
+          <ResponsiveImage src={previous.image} alt="" />
         </div>
         <button className="carousel-arrow carousel-arrow-left" type="button" aria-label="上一张" onClick={() => move(-1)}>
           ‹
         </button>
-        <a className="other-main-card" href={`/${active.id}/`} onClick={(event) => event.preventDefault()} onDoubleClick={(event) => openOnDoubleClick(event, `/${active.id}/`)}>
+        <a className="other-main-card" href={`/${active.id}/`}>
           <span className="work-number">{active.number}</span>
-          <img className="other-main-image" src={active.image} alt={active.displayTitle} />
+          <ResponsiveImage className="other-main-image" src={active.image} alt={active.displayTitle} />
           <PlayIcon variant={blackPlayOtherWorkIds.has(active.id) ? 'black' : 'light'} />
         </a>
         <button className="carousel-arrow carousel-arrow-right" type="button" aria-label="下一张" onClick={() => move(1)}>
@@ -280,7 +354,7 @@ function OtherWorks() {
         </button>
         <div className="side-preview side-preview-right" aria-hidden="true">
           <span className="side-number">{next.number}</span>
-          <img src={next.image} alt="" />
+          <ResponsiveImage src={next.image} alt="" />
         </div>
       </div>
       <div className="other-caption">
@@ -301,10 +375,10 @@ function FilmStage({ frames, effect, dissolveFrames }) {
     <div className="film-stage">
       {effect === 'dissolve' &&
         dissolveFrames?.map((frame, index) => (
-          <img key={`dissolve-${frame}-${index}`} className={`film-frame film-frame-${index + 1} dissolve-frame`} src={frame} alt="" />
+          <ResponsiveImage key={`dissolve-${frame}-${index}`} className={`film-frame film-frame-${index + 1} dissolve-frame`} src={frame} alt="" />
         ))}
       {frames.map((frame, index) => (
-        <img key={`${frame}-${index}`} className={`film-frame film-frame-${index + 1}`} src={frame} alt="" />
+        <ResponsiveImage key={`${frame}-${index}`} className={`film-frame film-frame-${index + 1}`} src={frame} alt="" />
       ))}
       <img className="film-strip" src="/assets/film-strip.png" alt="" aria-hidden="true" />
       <span className="film-flash" aria-hidden="true"></span>
@@ -359,7 +433,7 @@ function ThumbnailFilmStrip() {
   return (
     <div className="thumbnail-film-stage">
       {thumbnailFrames.map((frame, index) => (
-        <img key={frame} className={`thumbnail-frame thumbnail-frame-${index + 1}`} src={frame} alt="" />
+        <ResponsiveImage key={frame} className={`thumbnail-frame thumbnail-frame-${index + 1}`} src={frame} alt="" />
       ))}
       <img className="double-film-strip" src="/assets/double-film-strip.png" alt="" aria-hidden="true" />
     </div>
@@ -407,8 +481,8 @@ function ShotMaterials() {
   return (
     <section className="shot-materials reveal-on-scroll" id="shot-materials">
       <SectionTitle english="SHOT MATERIALS" chinese="拍摄过的素材" />
-      <a className="shot-materials-card" href="/shot-materials/" onClick={(event) => event.preventDefault()} onDoubleClick={(event) => openOnDoubleClick(event, '/shot-materials/')}>
-        <img className="shot-materials-image" src="/assets/shot-materials-33.jpg" alt="拍摄过的素材" />
+      <a className="shot-materials-card" href="/shot-materials/">
+        <ResponsiveImage className="shot-materials-image" src="/assets/shot-materials-33.jpg" alt="拍摄过的素材" />
         <img className="shot-materials-type" src="/assets/shot-materials-type.png" alt="星空与深空摄影 延时摄影&自然风光 星空 自然 时间" />
         <PlayIcon />
       </a>
@@ -420,8 +494,8 @@ function MemorySection() {
   return (
     <section className="memory-section reveal-on-scroll" id="memory">
       <SectionTitle english="AND" chinese="以及" />
-      <a className="memory-card" href="/memory/" onClick={(event) => event.preventDefault()} onDoubleClick={(event) => openOnDoubleClick(event, '/memory/')}>
-        <img className="memory-image" src="/assets/memory.jpg" alt="回忆" />
+      <a className="memory-card" href="/memory/">
+        <ResponsiveImage className="memory-image" src="/assets/memory.jpg" alt="回忆" />
         <img className="memory-type" src="/assets/memory-type.png" alt="回忆" />
       </a>
     </section>
@@ -432,7 +506,7 @@ function AboutMe() {
   return (
     <section className="about-me reveal-on-scroll" id="about-me">
       <SectionTitle english="ABOUT ME" chinese="关于我" />
-      <img className="about-postcard" src="/assets/about-postcard.png" alt="关于我" />
+      <ResponsiveImage className="about-postcard" src="/assets/about-postcard.png" alt="关于我" />
     </section>
   )
 }
@@ -519,7 +593,7 @@ function HomePage() {
       <Nav />
       <main>
         <section className="hero" aria-label="首页视频" onPointerMove={updateHeroMarkStretch} onPointerLeave={resetHeroMarkStretch}>
-          <video className="hero-video" src="/assets/hero-video.mp4" autoPlay muted loop playsInline />
+          <HeroVideo />
           <button className="hero-mark" type="button" aria-label="无尽探索 无限进步" ref={heroMarkRef}>
             <span className="hero-mark-layer hero-mark-layer-left" aria-hidden="true"></span>
             <span className="hero-mark-layer hero-mark-layer-right" aria-hidden="true"></span>
@@ -529,9 +603,9 @@ function HomePage() {
 
         <section className="selection reveal-on-scroll" id="selection">
           <SectionTitle english="SELECTION" chinese="精选合集" />
-          <a className="selection-card" href="/selection/" onClick={(event) => event.preventDefault()} onDoubleClick={(event) => openOnDoubleClick(event, '/selection/')}>
+          <a className="selection-card" href="/selection/">
             <span className="play-image-frame">
-              <img src="/assets/selection-cover.jpg" alt="精选合集" />
+              <ResponsiveImage src="/assets/selection-cover.jpg" alt="精选合集" eager />
               <PlayIcon />
             </span>
           </a>
@@ -546,9 +620,9 @@ function HomePage() {
               <h3>作品入口</h3>
             </div>
             <div className="featured-grid">
-              <a className="work-card" href="/wild-grass/" onClick={(event) => event.preventDefault()} onDoubleClick={(event) => openOnDoubleClick(event, '/wild-grass/')}>
+              <a className="work-card" href="/wild-grass/">
                 <span className="play-image-frame work-image-frame">
-                  <img src="/assets/wild-grass.jpg" alt="故事片代表作《野草》" />
+                  <ResponsiveImage src="/assets/wild-grass.jpg" alt="故事片代表作《野草》" />
                   <PlayIcon />
                 </span>
                 <div className="featured-caption">
@@ -559,9 +633,9 @@ function HomePage() {
                   </div>
                 </div>
               </a>
-              <a className="work-card" href="/heart-home/" onClick={(event) => event.preventDefault()} onDoubleClick={(event) => openOnDoubleClick(event, '/heart-home/')}>
+              <a className="work-card" href="/heart-home/">
                 <span className="play-image-frame work-image-frame">
-                  <img src="/assets/heart-home.jpg" alt="故事片代表作《何以栖心》" />
+                  <ResponsiveImage src="/assets/heart-home.jpg" alt="故事片代表作《何以栖心》" />
                   <PlayIcon variant="black" />
                 </span>
                 <div className="featured-caption">
@@ -573,9 +647,9 @@ function HomePage() {
                 </div>
               </a>
             </div>
-            <a className="work-card work-card-wide" href="/under-sky/" onClick={(event) => event.preventDefault()} onDoubleClick={(event) => openOnDoubleClick(event, '/under-sky/')}>
+            <a className="work-card work-card-wide" href="/under-sky/">
               <span className="play-image-frame work-image-frame">
-                <img src="/assets/under-sky.jpg" alt="纪录片代表作《苍穹之下》" />
+                <ResponsiveImage src="/assets/under-sky.jpg" alt="纪录片代表作《苍穹之下》" />
                 <PlayIcon />
               </span>
               <div className="featured-caption featured-caption-wide">
@@ -604,7 +678,7 @@ function DetailPage({ english, title, embedSrc, image, imageAlt = '', imageVaria
       <Nav />
       <main className="detail-page">
         <div className="detail-inner">
-          <button className="back-button" type="button" onDoubleClick={() => goBackToPortfolio(backTarget)}>
+          <button className="back-button" type="button" onClick={() => goBackToPortfolio(backTarget)}>
             返回作品集
           </button>
           <div className="detail-heading">
