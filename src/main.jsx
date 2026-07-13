@@ -12,6 +12,7 @@ const navItems = [
   { label: '调色静帧演示', href: '#color-stills' },
   { label: '拍摄过的素材', href: '#shot-materials' },
   { label: '以及', href: '#memory' },
+  { label: '关于我', href: '#about-me' },
 ]
 
 const otherWorks = [
@@ -20,7 +21,7 @@ const otherWorks = [
     number: '01',
     title: '野草',
     displayTitle: '《野草》',
-    role: '担任:导演',
+    role: '导演',
     image: '/assets/other-weeds.jpg',
     embedSrc: 'https://player.xinpianchang.com/?aid=13746249&mid=NK0mw6RpVNDwW1na',
   },
@@ -29,7 +30,7 @@ const otherWorks = [
     number: '02',
     title: '野蛮生长',
     displayTitle: '《野蛮生长》',
-    role: '担任:DP摄影指导',
+    role: '摄影师',
     image: '/assets/other-wild-growth.jpg',
     embedSrc: 'https://player.xinpianchang.com/?aid=13746255&mid=jlyzw0zjLXKQB198',
   },
@@ -38,7 +39,7 @@ const otherWorks = [
     number: '03',
     title: '“绣”出凉山',
     displayTitle: '《“绣”出凉山》',
-    role: '担任:导演',
+    role: '导演/摄影师/剪辑师',
     image: '/assets/other-liangshan.jpg',
     embedSrc: 'https://player.xinpianchang.com/?aid=13746238&mid=2MmN45kEBpY7X0zL',
   },
@@ -47,7 +48,7 @@ const otherWorks = [
     number: '04',
     title: '黑白格',
     displayTitle: '《黑白格》',
-    role: '担任:摄影助理',
+    role: '摄影助理',
     image: '/assets/other-black-white-grid.jpg',
     embedSrc: 'https://player.xinpianchang.com/?aid=13746829&mid=O5vZQVJmNLEQDEMW',
   },
@@ -56,7 +57,7 @@ const otherWorks = [
     number: '05',
     title: '缘分的奇妙之旅',
     displayTitle: '《缘分的奇妙之旅》',
-    role: '担任:DP摄影指导',
+    role: '摄影师',
     image: '/assets/other-fate-journey.jpg',
     embedSrc: 'https://player.xinpianchang.com/?aid=13746254&mid=9WxJ7lVGxpq481kM',
   },
@@ -65,7 +66,7 @@ const otherWorks = [
     number: '06',
     title: '荨',
     displayTitle: '《荨》',
-    role: '担任:摄影助理',
+    role: '摄影助理',
     image: '/assets/other-xun.jpg',
     embedSrc: 'https://player.xinpianchang.com/?aid=13746250&mid=bKG8QdM1LgP7RJMy',
   },
@@ -74,7 +75,7 @@ const otherWorks = [
     number: '07',
     title: '尤利西斯的清单',
     displayTitle: '《尤利西斯的清单》',
-    role: '担任:DP摄影指导',
+    role: '摄影师',
     image: '/assets/other-ulysses-list.jpg',
     embedSrc: 'https://player.xinpianchang.com/?aid=13746251&mid=n2k9QAVMEPe718MZ',
   },
@@ -83,7 +84,7 @@ const otherWorks = [
     number: '08',
     title: '家书',
     displayTitle: '《家书》',
-    role: '担任:A机掌机',
+    role: 'A机掌机',
     image: '/assets/other-home-letters.jpg',
     embedSrc: 'https://player.xinpianchang.com/?aid=13746253&mid=GKL87NomLAlwojJz',
   },
@@ -92,7 +93,7 @@ const otherWorks = [
     number: '09',
     title: '关于父亲的一夜',
     displayTitle: '《关于父亲的一夜》',
-    role: '担任:跟焦员',
+    role: '跟焦员',
     image: '/assets/other-father-night.jpg',
     embedSrc: 'https://player.xinpianchang.com/?aid=13746257&mid=DaLZwPqm8bR4nrjY',
   },
@@ -101,7 +102,7 @@ const otherWorks = [
     number: '10',
     title: '一直开到路的尽头',
     displayTitle: '《一直开到路的尽头》',
-    role: '担任:灯光助理',
+    role: '灯光助理',
     image: '/assets/other-road-end.jpg',
     embedSrc: 'https://player.xinpianchang.com/?aid=13746258&mid=v9GZQRo8kL57WnAR',
   },
@@ -120,9 +121,22 @@ const dayNightFrameSets = [
 
 const thumbnailFrames = Array.from({ length: 12 }, (_, index) => `/assets/thumb-frame-${index + 1}.jpg`)
 
-const heroVideoSrc = '/assets/hero-video.mp4'
-
 const blackPlayOtherWorkIds = new Set(['other-weeds', 'other-wild-growth', 'other-fate-journey', 'other-xun', 'other-home-letters'])
+
+const featuredPosters = [
+  {
+    title: '《野草》海报',
+    image: '/assets/featured-poster-wild-grass.jpg',
+  },
+  {
+    title: '《何以栖心》海报',
+    image: '/assets/featured-poster-heart-home.jpg',
+  },
+  {
+    title: '《苍穹之下》海报',
+    image: '/assets/featured-poster-under-sky.jpg',
+  },
+]
 
 function Nav() {
   return (
@@ -162,6 +176,11 @@ function goBackToPortfolio(fallbackHash = '#selection') {
   window.location.href = `/${fallbackHash}`
 }
 
+function openOnDoubleClick(event, href) {
+  event.preventDefault()
+  window.location.href = href
+}
+
 function useScrollReveal() {
   useEffect(() => {
     const revealItems = document.querySelectorAll('.reveal-on-scroll')
@@ -198,66 +217,37 @@ function PlayIcon({ variant = 'light' }) {
   return <img className="play-icon" src={src} alt="" aria-hidden="true" />
 }
 
-function mobileAsset(src) {
-  return src?.replace('/assets/', '/assets/mobile/')
-}
-
-function xpcEmbedSrc(src) {
-  try {
-    const url = new URL(src)
-    url.searchParams.set('autoplay', '0')
-    url.searchParams.set('disableAutoPlay', 'true')
-    url.searchParams.set('playsInline', '1')
-    return url.toString()
-  } catch {
-    return src
-  }
-}
-
-function LazyImage({ mobileSrc, sizes = '(max-width: 760px) 100vw, 880px', src, ...props }) {
-  const responsiveProps = mobileSrc
-    ? {
-        srcSet: `${mobileSrc} 760w, ${src} 1500w`,
-        sizes,
-      }
-    : {}
-
-  return <img loading="lazy" decoding="async" src={src} {...responsiveProps} {...props} />
-}
-
-function useNearViewport(rootMargin = '360px') {
-  const ref = useRef(null)
-  const [isNear, setIsNear] = useState(false)
-
-  useEffect(() => {
-    const node = ref.current
-    if (!node || isNear) return
-
-    if (!('IntersectionObserver' in window)) {
-      setIsNear(true)
-      return
-    }
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry.isIntersecting) return
-
-        setIsNear(true)
-        observer.disconnect()
-      },
-      { rootMargin, threshold: 0.01 },
-    )
-
-    observer.observe(node)
-
-    return () => observer.disconnect()
-  }, [isNear, rootMargin])
-
-  return [ref, isNear]
-}
-
 function ClapHand() {
   return <img className="clap-hand" src="/assets/clap-hand.png" alt="" aria-hidden="true" />
+}
+
+function FeaturedPosterCarousel() {
+  const [activeIndex, setActiveIndex] = useState(0)
+  const active = featuredPosters[activeIndex]
+  const previous = featuredPosters[(activeIndex - 1 + featuredPosters.length) % featuredPosters.length]
+  const next = featuredPosters[(activeIndex + 1) % featuredPosters.length]
+
+  const move = (direction) => {
+    setActiveIndex((current) => (current + direction + featuredPosters.length) % featuredPosters.length)
+  }
+
+  return (
+    <div className="featured-poster-carousel" aria-label="代表作品海报">
+      <div className="featured-poster-side featured-poster-side-left" aria-hidden="true">
+        <img src={previous.image} alt="" />
+      </div>
+      <button className="poster-arrow poster-arrow-left" type="button" aria-label="上一张海报" onClick={() => move(-1)}>
+        ‹
+      </button>
+      <img className="featured-poster-main" src={active.image} alt={active.title} />
+      <button className="poster-arrow poster-arrow-right" type="button" aria-label="下一张海报" onClick={() => move(1)}>
+        ›
+      </button>
+      <div className="featured-poster-side featured-poster-side-right" aria-hidden="true">
+        <img src={next.image} alt="" />
+      </div>
+    </div>
+  )
 }
 
 function OtherWorks() {
@@ -275,14 +265,14 @@ function OtherWorks() {
       <SectionTitle english="OTHER WORKS" chinese="其他代表作品" />
       <div className="other-carousel">
         <div className="side-preview side-preview-left" aria-hidden="true">
-          <LazyImage src={previous.image} mobileSrc={mobileAsset(previous.image)} alt="" />
+          <img src={previous.image} alt="" />
         </div>
         <button className="carousel-arrow carousel-arrow-left" type="button" aria-label="上一张" onClick={() => move(-1)}>
           ‹
         </button>
-        <a className="other-main-card" href={`/${active.id}/`}>
+        <a className="other-main-card" href={`/${active.id}/`} onClick={(event) => event.preventDefault()} onDoubleClick={(event) => openOnDoubleClick(event, `/${active.id}/`)}>
           <span className="work-number">{active.number}</span>
-          <LazyImage className="other-main-image" src={active.image} mobileSrc={mobileAsset(active.image)} alt={active.displayTitle} />
+          <img className="other-main-image" src={active.image} alt={active.displayTitle} />
           <PlayIcon variant={blackPlayOtherWorkIds.has(active.id) ? 'black' : 'light'} />
         </a>
         <button className="carousel-arrow carousel-arrow-right" type="button" aria-label="下一张" onClick={() => move(1)}>
@@ -290,7 +280,7 @@ function OtherWorks() {
         </button>
         <div className="side-preview side-preview-right" aria-hidden="true">
           <span className="side-number">{next.number}</span>
-          <LazyImage src={next.image} mobileSrc={mobileAsset(next.image)} alt="" />
+          <img src={next.image} alt="" />
         </div>
       </div>
       <div className="other-caption">
@@ -306,32 +296,23 @@ function OtherWorks() {
   )
 }
 
-function FilmStage({ frames, effect, dissolveFrames, shouldLoadFrames = true }) {
+function FilmStage({ frames, effect, dissolveFrames }) {
   return (
     <div className="film-stage">
-      {shouldLoadFrames &&
-        effect === 'dissolve' &&
+      {effect === 'dissolve' &&
         dissolveFrames?.map((frame, index) => (
-          <LazyImage
-            key={`dissolve-${frame}-${index}`}
-            className={`film-frame film-frame-${index + 1} dissolve-frame`}
-            src={frame}
-            mobileSrc={mobileAsset(frame)}
-            sizes="(max-width: 760px) 30vw, 340px"
-            alt=""
-          />
+          <img key={`dissolve-${frame}-${index}`} className={`film-frame film-frame-${index + 1} dissolve-frame`} src={frame} alt="" />
         ))}
-      {shouldLoadFrames &&
-        frames.map((frame, index) => (
-          <LazyImage key={`${frame}-${index}`} className={`film-frame film-frame-${index + 1}`} src={frame} mobileSrc={mobileAsset(frame)} sizes="(max-width: 760px) 30vw, 340px" alt="" />
-        ))}
-      <LazyImage className="film-strip" src="/assets/film-strip.png" alt="" aria-hidden="true" />
+      {frames.map((frame, index) => (
+        <img key={`${frame}-${index}`} className={`film-frame film-frame-${index + 1}`} src={frame} alt="" />
+      ))}
+      <img className="film-strip" src="/assets/film-strip.png" alt="" aria-hidden="true" />
       <span className="film-flash" aria-hidden="true"></span>
     </div>
   )
 }
 
-function DayNightDemo({ shouldLoadFrames }) {
+function DayNightDemo() {
   const [activeSet, setActiveSet] = useState(0)
   const [effect, setEffect] = useState('')
   const [dissolveTarget, setDissolveTarget] = useState(null)
@@ -359,7 +340,7 @@ function DayNightDemo({ shouldLoadFrames }) {
 
   return (
     <div className={`film-demo day-night-demo ${effect}`}>
-      <FilmStage frames={frames} effect={effect} dissolveFrames={dissolveFrames} shouldLoadFrames={shouldLoadFrames} />
+      <FilmStage frames={frames} effect={effect} dissolveFrames={dissolveFrames} />
       <div className="dual-toggle-row">
         <button className="color-toggle day-night-toggle" type="button" onClick={() => changeSet(1)} aria-label="切换到第一组日转夜静帧">
           <img className="color-button-image" src="/assets/color-button.png" alt="TRY" />
@@ -374,20 +355,18 @@ function DayNightDemo({ shouldLoadFrames }) {
   )
 }
 
-function ThumbnailFilmStrip({ shouldLoadFrames }) {
+function ThumbnailFilmStrip() {
   return (
     <div className="thumbnail-film-stage">
-      {shouldLoadFrames &&
-        thumbnailFrames.map((frame, index) => (
-          <LazyImage key={frame} className={`thumbnail-frame thumbnail-frame-${index + 1}`} src={frame} mobileSrc={mobileAsset(frame)} sizes="(max-width: 760px) 16vw, 180px" alt="" />
-        ))}
-      <LazyImage className="double-film-strip" src="/assets/double-film-strip.png" alt="" aria-hidden="true" />
+      {thumbnailFrames.map((frame, index) => (
+        <img key={frame} className={`thumbnail-frame thumbnail-frame-${index + 1}`} src={frame} alt="" />
+      ))}
+      <img className="double-film-strip" src="/assets/double-film-strip.png" alt="" aria-hidden="true" />
     </div>
   )
 }
 
 function ColorStills() {
-  const [sectionRef, shouldLoadFrames] = useNearViewport('420px')
   const [graded, setGraded] = useState(false)
   const [effect, setEffect] = useState('')
   const frames = colorFrameSets[graded ? 1 : 0]
@@ -409,17 +388,17 @@ function ColorStills() {
   }
 
   return (
-    <section className="color-stills reveal-on-scroll" id="color-stills" ref={sectionRef}>
+    <section className="color-stills reveal-on-scroll" id="color-stills">
       <SectionTitle english="COLOR STILLS" chinese="调色静帧演示" />
       <div className={`film-demo ${effect}`}>
-        <FilmStage frames={frames} effect={effect} dissolveFrames={dissolveFrames} shouldLoadFrames={shouldLoadFrames} />
+        <FilmStage frames={frames} effect={effect} dissolveFrames={dissolveFrames} />
         <button className="color-toggle" type="button" onClick={toggleFrames} aria-label="切换调色静帧">
           <img className="color-button-image" src="/assets/color-button.png" alt="TRY" />
           <ClapHand />
         </button>
       </div>
-      <DayNightDemo shouldLoadFrames={shouldLoadFrames} />
-      <ThumbnailFilmStrip shouldLoadFrames={shouldLoadFrames} />
+      <DayNightDemo />
+      <ThumbnailFilmStrip />
     </section>
   )
 }
@@ -428,9 +407,9 @@ function ShotMaterials() {
   return (
     <section className="shot-materials reveal-on-scroll" id="shot-materials">
       <SectionTitle english="SHOT MATERIALS" chinese="拍摄过的素材" />
-      <a className="shot-materials-card" href="/shot-materials/">
-        <LazyImage className="shot-materials-image" src="/assets/shot-materials-33.jpg" mobileSrc="/assets/mobile/shot-materials-33.jpg" alt="拍摄过的素材" />
-        <LazyImage className="shot-materials-type" src="/assets/shot-materials-type.png" alt="星空与深空摄影 延时摄影&自然风光 星空 自然 时间" />
+      <a className="shot-materials-card" href="/shot-materials/" onClick={(event) => event.preventDefault()} onDoubleClick={(event) => openOnDoubleClick(event, '/shot-materials/')}>
+        <img className="shot-materials-image" src="/assets/shot-materials-33.jpg" alt="拍摄过的素材" />
+        <img className="shot-materials-type" src="/assets/shot-materials-type.png" alt="星空与深空摄影 延时摄影&自然风光 星空 自然 时间" />
         <PlayIcon />
       </a>
     </section>
@@ -441,17 +420,25 @@ function MemorySection() {
   return (
     <section className="memory-section reveal-on-scroll" id="memory">
       <SectionTitle english="AND" chinese="以及" />
-      <a className="memory-card" href="/memory/">
-        <LazyImage className="memory-image" src="/assets/memory.jpg" mobileSrc="/assets/mobile/memory.jpg" alt="回忆" />
-        <LazyImage className="memory-type" src="/assets/memory-type.png" alt="回忆" />
+      <a className="memory-card" href="/memory/" onClick={(event) => event.preventDefault()} onDoubleClick={(event) => openOnDoubleClick(event, '/memory/')}>
+        <img className="memory-image" src="/assets/memory.jpg" alt="回忆" />
+        <img className="memory-type" src="/assets/memory-type.png" alt="回忆" />
       </a>
+    </section>
+  )
+}
+
+function AboutMe() {
+  return (
+    <section className="about-me reveal-on-scroll" id="about-me">
+      <SectionTitle english="ABOUT ME" chinese="关于我" />
+      <img className="about-postcard" src="/assets/about-postcard.png" alt="关于我" />
     </section>
   )
 }
 
 function HomePage() {
   useScrollReveal()
-  const [loadHeroVideo, setLoadHeroVideo] = useState(false)
   const heroMarkRef = useRef(null)
   const heroMotionRef = useRef({
     currentX: 0,
@@ -532,13 +519,7 @@ function HomePage() {
       <Nav />
       <main>
         <section className="hero" aria-label="首页视频" onPointerMove={updateHeroMarkStretch} onPointerLeave={resetHeroMarkStretch}>
-          <img className={`hero-poster ${loadHeroVideo ? 'is-hidden' : ''}`} src="/assets/hero-poster.png" alt="" aria-hidden="true" />
-          {loadHeroVideo && <video className="hero-video" src={heroVideoSrc} autoPlay muted loop playsInline preload="none" />}
-          {!loadHeroVideo && (
-            <button className="hero-play-button" type="button" aria-label="播放首页视频" onClick={() => setLoadHeroVideo(true)}>
-              <img src="/assets/play-icon.png" alt="" aria-hidden="true" />
-            </button>
-          )}
+          <video className="hero-video" src="/assets/hero-video.mp4" autoPlay muted loop playsInline />
           <button className="hero-mark" type="button" aria-label="无尽探索 无限进步" ref={heroMarkRef}>
             <span className="hero-mark-layer hero-mark-layer-left" aria-hidden="true"></span>
             <span className="hero-mark-layer hero-mark-layer-right" aria-hidden="true"></span>
@@ -548,9 +529,9 @@ function HomePage() {
 
         <section className="selection reveal-on-scroll" id="selection">
           <SectionTitle english="SELECTION" chinese="精选合集" />
-          <a className="selection-card" href="/selection/">
+          <a className="selection-card" href="/selection/" onClick={(event) => event.preventDefault()} onDoubleClick={(event) => openOnDoubleClick(event, '/selection/')}>
             <span className="play-image-frame">
-              <LazyImage src="/assets/selection-cover.jpg" mobileSrc="/assets/mobile/selection-cover.jpg" alt="精选合集" />
+              <img src="/assets/selection-cover.jpg" alt="精选合集" />
               <PlayIcon />
             </span>
           </a>
@@ -558,66 +539,72 @@ function HomePage() {
 
         <section className="featured reveal-on-scroll" id="featured">
           <SectionTitle english="FEATURED WORKS" chinese="代表作品" />
-          <div className="featured-grid">
-            <a className="work-card" href="/wild-grass/">
+          <FeaturedPosterCarousel />
+          <div className="featured-entry-block reveal-on-scroll">
+            <div className="featured-entry-title">
+              <p>PROJECT ENTRIES</p>
+              <h3>作品入口</h3>
+            </div>
+            <div className="featured-grid">
+              <a className="work-card" href="/wild-grass/" onClick={(event) => event.preventDefault()} onDoubleClick={(event) => openOnDoubleClick(event, '/wild-grass/')}>
+                <span className="play-image-frame work-image-frame">
+                  <img src="/assets/wild-grass.jpg" alt="故事片代表作《野草》" />
+                  <PlayIcon />
+                </span>
+                <div className="featured-caption">
+                  <span className="featured-mark" aria-hidden="true"></span>
+                  <div className="featured-caption-text">
+                    <span>导演/摄影师/剪辑师/AIGCer</span>
+                    <strong>故事片代表作《野草》</strong>
+                  </div>
+                </div>
+              </a>
+              <a className="work-card" href="/heart-home/" onClick={(event) => event.preventDefault()} onDoubleClick={(event) => openOnDoubleClick(event, '/heart-home/')}>
+                <span className="play-image-frame work-image-frame">
+                  <img src="/assets/heart-home.jpg" alt="故事片代表作《何以栖心》" />
+                  <PlayIcon variant="black" />
+                </span>
+                <div className="featured-caption">
+                  <span className="featured-mark" aria-hidden="true"></span>
+                  <div className="featured-caption-text">
+                    <span>摄影师</span>
+                    <strong>故事片代表作《何以栖心》</strong>
+                  </div>
+                </div>
+              </a>
+            </div>
+            <a className="work-card work-card-wide" href="/under-sky/" onClick={(event) => event.preventDefault()} onDoubleClick={(event) => openOnDoubleClick(event, '/under-sky/')}>
               <span className="play-image-frame work-image-frame">
-                <LazyImage src="/assets/wild-grass.jpg" mobileSrc="/assets/mobile/wild-grass.jpg" sizes="(max-width: 760px) 48vw, 340px" alt="故事片代表作《野草》" />
+                <img src="/assets/under-sky.jpg" alt="纪录片代表作《苍穹之下》" />
                 <PlayIcon />
               </span>
-              <div className="featured-caption">
+              <div className="featured-caption featured-caption-wide">
                 <span className="featured-mark" aria-hidden="true"></span>
                 <div className="featured-caption-text">
-                  <span>担任:导演</span>
-                  <strong>故事片代表作《野草》</strong>
-                </div>
-              </div>
-            </a>
-            <a className="work-card" href="/heart-home/">
-              <span className="play-image-frame work-image-frame">
-                <LazyImage src="/assets/heart-home.jpg" mobileSrc="/assets/mobile/heart-home.jpg" sizes="(max-width: 760px) 48vw, 340px" alt="故事片代表作《何以栖心》" />
-                <PlayIcon variant="black" />
-              </span>
-              <div className="featured-caption">
-                <span className="featured-mark" aria-hidden="true"></span>
-                <div className="featured-caption-text">
-                  <span>担任:DP摄影指导</span>
-                  <strong>故事片代表作《何以栖心》</strong>
+                  <span>导演/摄影师/剪辑师</span>
+                  <strong>纪录片代表作《苍穹之下》</strong>
                 </div>
               </div>
             </a>
           </div>
-          <a className="work-card work-card-wide" href="/under-sky/">
-            <span className="play-image-frame work-image-frame">
-              <LazyImage src="/assets/under-sky.jpg" mobileSrc="/assets/mobile/under-sky.jpg" alt="纪录片代表作《苍穹之下》" />
-              <PlayIcon />
-            </span>
-            <div className="featured-caption featured-caption-wide">
-              <span className="featured-mark" aria-hidden="true"></span>
-              <div className="featured-caption-text">
-                <span>担任:导演</span>
-                <strong>纪录片代表作《苍穹之下》</strong>
-              </div>
-            </div>
-          </a>
         </section>
         <OtherWorks />
         <ColorStills />
         <ShotMaterials />
         <MemorySection />
+        <AboutMe />
       </main>
     </>
   )
 }
 
 function DetailPage({ english, title, embedSrc, image, imageAlt = '', imageVariant = '', description, backTarget = '#selection', hideCopy = false }) {
-  const [loadPlayer, setLoadPlayer] = useState(false)
-
   return (
     <>
       <Nav />
       <main className="detail-page">
         <div className="detail-inner">
-          <button className="back-button" type="button" onClick={() => goBackToPortfolio(backTarget)}>
+          <button className="back-button" type="button" onDoubleClick={() => goBackToPortfolio(backTarget)}>
             返回作品集
           </button>
           <div className="detail-heading">
@@ -626,20 +613,7 @@ function DetailPage({ english, title, embedSrc, image, imageAlt = '', imageVaria
           </div>
           {embedSrc ? (
             <div className="detail-video-frame">
-              {loadPlayer ? (
-                <iframe
-                  className="detail-video detail-embed"
-                  src={xpcEmbedSrc(embedSrc)}
-                  title={title}
-                  allowFullScreen
-                  allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
-                  frameBorder="0"
-                ></iframe>
-              ) : (
-                <button className="detail-player-button" type="button" aria-label={`播放${title}`} onClick={() => setLoadPlayer(true)}>
-                  <img src="/assets/play-icon.png" alt="" aria-hidden="true" />
-                </button>
-              )}
+              <iframe className="detail-video detail-embed" src={embedSrc} title={title} allowFullScreen allow="autoplay; fullscreen; picture-in-picture; encrypted-media" frameBorder="0"></iframe>
             </div>
           ) : image ? (
             <div className={`detail-image-frame ${imageVariant ? `detail-image-frame-${imageVariant}` : ''}`}>
