@@ -5,6 +5,8 @@ import { useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import './styles.css'
 
+const HERO_EMBED_SRC = 'https://player.xinpianchang.com/?aid=13748782&mid=0lYnQmMamn3Q62j1'
+
 const navItems = [
   { label: '精选合集', href: '#selection' },
   { label: '代表作品', href: '#featured' },
@@ -127,27 +129,46 @@ function mobileAsset(src) {
   return src.replace('/assets/', '/assets/mobile/')
 }
 
+function webpAsset(src) {
+  return src.replace(/\.(png|jpe?g)$/i, '.webp')
+}
+
 function ResponsiveImage({ className, src, mobileSrc = mobileAsset(src), alt = '', eager = false }) {
+  const webpSrc = webpAsset(src)
+  const mobileWebpSrc = webpAsset(mobileSrc)
+
   return (
-    <img
-      className={className}
-      src={src}
-      srcSet={`${mobileSrc} 760w, ${src} 1280w`}
-      sizes="(max-width: 760px) 100vw, 1280px"
-      alt={alt}
-      loading={eager ? 'eager' : 'lazy'}
-      decoding={eager ? 'sync' : 'async'}
-      fetchPriority={eager ? 'high' : 'auto'}
-    />
+    <picture>
+      <source type="image/webp" srcSet={`${mobileWebpSrc} 760w, ${webpSrc} 1280w`} sizes="(max-width: 760px) 100vw, 1280px" />
+      <img
+        className={className}
+        src={src}
+        srcSet={`${mobileSrc} 760w, ${src} 1280w`}
+        sizes="(max-width: 760px) 100vw, 1280px"
+        alt={alt}
+        loading={eager ? 'eager' : 'lazy'}
+        decoding={eager ? 'sync' : 'async'}
+        fetchPriority={eager ? 'high' : 'auto'}
+      />
+    </picture>
   )
+}
+
+function withAutoplay(src) {
+  if (!src) return src
+
+  return `${src}${src.includes('?') ? '&' : '?'}autoplay=1`
 }
 
 function HeroVideo() {
   const videoRef = useRef(null)
   const [shouldLoadVideo, setShouldLoadVideo] = useState(false)
   const [hasStartedVideo, setHasStartedVideo] = useState(false)
+  const usesEmbed = Boolean(HERO_EMBED_SRC)
 
   useEffect(() => {
+    if (usesEmbed) return
+
     const startDeferredLoad = () => {
       const loadWhenIdle = () => setShouldLoadVideo(true)
 
@@ -167,17 +188,42 @@ function HeroVideo() {
     window.addEventListener('load', startDeferredLoad, { once: true })
 
     return () => window.removeEventListener('load', startDeferredLoad)
-  }, [])
+  }, [usesEmbed])
 
   useEffect(() => {
-    if (!shouldLoadVideo || !hasStartedVideo) return
+    if (usesEmbed || !shouldLoadVideo || !hasStartedVideo) return
 
     videoRef.current?.play().catch(() => {})
-  }, [hasStartedVideo, shouldLoadVideo])
+  }, [hasStartedVideo, shouldLoadVideo, usesEmbed])
 
   const startVideo = () => {
     setShouldLoadVideo(true)
     setHasStartedVideo(true)
+  }
+
+  if (usesEmbed) {
+    return (
+      <>
+        {hasStartedVideo && (
+          <>
+            <iframe
+              className="hero-embed is-started"
+              src={withAutoplay(HERO_EMBED_SRC)}
+              title="首页视频"
+              allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
+              allowFullScreen
+              frameBorder="0"
+            ></iframe>
+            <span className="hero-embed-shield" aria-hidden="true"></span>
+          </>
+        )}
+        {!hasStartedVideo && (
+          <button className="hero-video-play" type="button" aria-label="播放首页视频" onClick={startVideo}>
+            <PlayIcon />
+          </button>
+        )}
+      </>
+    )
   }
 
   return (
@@ -218,16 +264,27 @@ const featuredPosters = [
 ]
 
 function Nav() {
+  const navigateToSection = (event, href) => {
+    event.preventDefault()
+
+    if (window.location.pathname !== '/') {
+      window.location.href = `/${href}`
+      return
+    }
+
+    scrollToSection(href)
+  }
+
   return (
     <header className="nav">
       <div className="nav-inner">
         <a className="brand" href="/" aria-label="無尽探索 無限進步">
           <span className="brand-name">朱瑞哲</span>
-          <img className="brand-hover-image" src="/assets/brand-hover.png" alt="無尽探索 無限進步" />
+          <img className="brand-hover-image" src="/assets/brand-hover.webp" alt="無尽探索 無限進步" />
         </a>
         <nav className="nav-links" aria-label="主导航">
           {navItems.map((item) => (
-            <a className="nav-link" key={item.label} href={item.href}>
+            <a className="nav-link" key={item.label} href={item.href} onClick={(event) => navigateToSection(event, item.href)}>
               {item.label}
             </a>
           ))}
@@ -253,6 +310,19 @@ function goBackToPortfolio(fallbackHash = '#selection') {
   }
 
   window.location.href = `/${fallbackHash}`
+}
+
+function scrollToSection(hash) {
+  if (!hash) return
+
+  const target = document.querySelector(hash)
+  if (!target) return
+
+  const navHeight = document.querySelector('.nav')?.offsetHeight || 0
+  const top = target.getBoundingClientRect().top + window.scrollY - navHeight - 24
+
+  window.history.replaceState(null, '', hash)
+  window.scrollTo({ top, behavior: 'smooth' })
 }
 
 function useScrollReveal() {
@@ -291,8 +361,29 @@ function PlayIcon({ variant = 'light' }) {
   return <img className="play-icon" src={src} alt="" aria-hidden="true" />
 }
 
+function LazyDetailVideo({ embedSrc, title }) {
+  const [hasStartedVideo, setHasStartedVideo] = useState(false)
+
+  return (
+    <div className="detail-video-frame">
+      {hasStartedVideo ? (
+        <iframe className="detail-video detail-embed" src={embedSrc} title={title} allowFullScreen allow="autoplay; fullscreen; picture-in-picture; encrypted-media" frameBorder="0"></iframe>
+      ) : (
+        <button className="detail-video detail-video-poster" type="button" aria-label={`播放${title}`} onClick={() => setHasStartedVideo(true)}>
+          <PlayIcon />
+        </button>
+      )}
+    </div>
+  )
+}
+
 function ClapHand() {
-  return <img className="clap-hand" src="/assets/clap-hand.png" alt="" aria-hidden="true" />
+  return (
+    <picture>
+      <source srcSet="/assets/clap-hand.webp" type="image/webp" />
+      <img className="clap-hand" src="/assets/clap-hand.png" alt="" aria-hidden="true" />
+    </picture>
+  )
 }
 
 function FeaturedPosterCarousel() {
@@ -380,7 +471,7 @@ function FilmStage({ frames, effect, dissolveFrames }) {
       {frames.map((frame, index) => (
         <ResponsiveImage key={`${frame}-${index}`} className={`film-frame film-frame-${index + 1}`} src={frame} alt="" />
       ))}
-      <img className="film-strip" src="/assets/film-strip.png" alt="" aria-hidden="true" />
+      <img className="film-strip" src="/assets/film-strip.webp" alt="" aria-hidden="true" />
       <span className="film-flash" aria-hidden="true"></span>
     </div>
   )
@@ -417,11 +508,11 @@ function DayNightDemo() {
       <FilmStage frames={frames} effect={effect} dissolveFrames={dissolveFrames} />
       <div className="dual-toggle-row">
         <button className="color-toggle day-night-toggle" type="button" onClick={() => changeSet(1)} aria-label="切换到第一组日转夜静帧">
-          <img className="color-button-image" src="/assets/color-button.png" alt="TRY" />
+          <img className="color-button-image" src="/assets/color-button.webp" alt="TRY" />
           <ClapHand />
         </button>
         <button className="color-toggle day-night-toggle" type="button" onClick={() => changeSet(2)} aria-label="切换到第二组日转夜静帧">
-          <img className="color-button-image" src="/assets/color-button.png" alt="TRY" />
+          <img className="color-button-image" src="/assets/color-button.webp" alt="TRY" />
           <ClapHand />
         </button>
       </div>
@@ -435,7 +526,7 @@ function ThumbnailFilmStrip() {
       {thumbnailFrames.map((frame, index) => (
         <ResponsiveImage key={frame} className={`thumbnail-frame thumbnail-frame-${index + 1}`} src={frame} alt="" />
       ))}
-      <img className="double-film-strip" src="/assets/double-film-strip.png" alt="" aria-hidden="true" />
+      <img className="double-film-strip" src="/assets/double-film-strip.webp" alt="" aria-hidden="true" />
     </div>
   )
 }
@@ -467,7 +558,7 @@ function ColorStills() {
       <div className={`film-demo ${effect}`}>
         <FilmStage frames={frames} effect={effect} dissolveFrames={dissolveFrames} />
         <button className="color-toggle" type="button" onClick={toggleFrames} aria-label="切换调色静帧">
-          <img className="color-button-image" src="/assets/color-button.png" alt="TRY" />
+          <img className="color-button-image" src="/assets/color-button.webp" alt="TRY" />
           <ClapHand />
         </button>
       </div>
@@ -483,7 +574,7 @@ function ShotMaterials() {
       <SectionTitle english="SHOT MATERIALS" chinese="拍摄过的素材" />
       <a className="shot-materials-card" href="/shot-materials/">
         <ResponsiveImage className="shot-materials-image" src="/assets/shot-materials-33.jpg" alt="拍摄过的素材" />
-        <img className="shot-materials-type" src="/assets/shot-materials-type.png" alt="星空与深空摄影 延时摄影&自然风光 星空 自然 时间" />
+        <img className="shot-materials-type" src="/assets/shot-materials-type.webp" alt="星空与深空摄影 延时摄影&自然风光 星空 自然 时间" />
         <PlayIcon />
       </a>
     </section>
@@ -496,7 +587,7 @@ function MemorySection() {
       <SectionTitle english="AND" chinese="以及" />
       <a className="memory-card" href="/memory/">
         <ResponsiveImage className="memory-image" src="/assets/memory.jpg" alt="回忆" />
-        <img className="memory-type" src="/assets/memory-type.png" alt="回忆" />
+        <img className="memory-type" src="/assets/memory-type.webp" alt="回忆" />
       </a>
     </section>
   )
@@ -523,6 +614,8 @@ function HomePage() {
   })
 
   useEffect(() => {
+    window.setTimeout(() => scrollToSection(window.location.hash), 80)
+
     return () => {
       if (heroMotionRef.current.frame) {
         window.cancelAnimationFrame(heroMotionRef.current.frame)
@@ -686,12 +779,10 @@ function DetailPage({ english, title, embedSrc, image, imageAlt = '', imageVaria
             <h1>{title}</h1>
           </div>
           {embedSrc ? (
-            <div className="detail-video-frame">
-              <iframe className="detail-video detail-embed" src={embedSrc} title={title} allowFullScreen allow="autoplay; fullscreen; picture-in-picture; encrypted-media" frameBorder="0"></iframe>
-            </div>
+            <LazyDetailVideo embedSrc={embedSrc} title={title} />
           ) : image ? (
             <div className={`detail-image-frame ${imageVariant ? `detail-image-frame-${imageVariant}` : ''}`}>
-              <img className={`detail-image ${imageVariant ? `detail-image-${imageVariant}` : ''}`} src={image} alt={imageAlt || title} />
+              <ResponsiveImage className={`detail-image ${imageVariant ? `detail-image-${imageVariant}` : ''}`} src={image} mobileSrc={image} alt={imageAlt || title} />
             </div>
           ) : (
             <div className="video-placeholder">视频素材待补充</div>

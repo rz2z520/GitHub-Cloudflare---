@@ -129,6 +129,9 @@ a {
 }
 
 .hero-video {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
   width: 100%;
   height: 100%;
   object-fit: contain;
@@ -140,6 +143,29 @@ a {
 
 .hero-video.is-started {
   opacity: 1;
+}
+
+.hero-embed {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #000;
+  opacity: 0;
+  transition: opacity 680ms ease;
+}
+
+.hero-embed.is-started {
+  opacity: 1;
+}
+
+.hero-embed-shield {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  background: transparent;
 }
 
 .hero-video-play {
@@ -202,7 +228,10 @@ a {
   bottom: 0;
   display: block;
   width: 50%;
-  background-image: url("/assets/explore-progress.png");
+  background-image: image-set(
+    url("/assets/explore-progress.webp") type("image/webp"),
+    url("/assets/explore-progress.png") type("image/png")
+  );
   background-repeat: no-repeat;
   background-size: 200% 100%;
   backface-visibility: hidden;
@@ -354,7 +383,18 @@ a {
   transition: transform 420ms cubic-bezier(0.16, 1, 0.3, 1), filter 420ms ease;
 }
 
-.play-image-frame > img:not(.play-icon) {
+.play-image-frame > picture,
+.shot-materials-card > picture,
+.memory-card > picture,
+.detail-image-frame > picture,
+.other-main-card > picture,
+.featured-poster-side > picture,
+.about-me > picture {
+  display: block;
+}
+
+.play-image-frame > img:not(.play-icon),
+.play-image-frame > picture > img:not(.play-icon) {
   display: block;
   width: 100%;
   height: auto;
@@ -404,8 +444,11 @@ a {
 }
 
 .selection-card:hover .play-image-frame > img:not(.play-icon),
+.selection-card:hover .play-image-frame > picture > img:not(.play-icon),
 .work-card:hover .play-image-frame > img:not(.play-icon),
-.work-card-wide:hover .play-image-frame > img:not(.play-icon) {
+.work-card:hover .play-image-frame > picture > img:not(.play-icon),
+.work-card-wide:hover .play-image-frame > img:not(.play-icon),
+.work-card-wide:hover .play-image-frame > picture > img:not(.play-icon) {
   transform: scale(1.018);
   filter: brightness(1.025) contrast(1.02);
 }
@@ -414,6 +457,8 @@ a {
   min-height: auto;
   padding-top: 140px;
   padding-bottom: 140px;
+  content-visibility: auto;
+  contain-intrinsic-size: 900px;
 }
 
 .shot-materials-card {
@@ -469,6 +514,8 @@ a {
   min-height: auto;
   padding-top: 145px;
   padding-bottom: 138px;
+  content-visibility: auto;
+  contain-intrinsic-size: 900px;
 }
 
 .memory-card {
@@ -524,6 +571,8 @@ a {
   min-height: auto;
   padding-top: 150px;
   padding-bottom: 150px;
+  content-visibility: auto;
+  contain-intrinsic-size: 900px;
 }
 
 .about-postcard {
@@ -680,7 +729,8 @@ a {
   width: min(100%, 340px);
 }
 
-.work-image-frame > img:not(.play-icon) {
+.work-image-frame > img:not(.play-icon),
+.work-image-frame > picture > img:not(.play-icon) {
   display: block;
   width: 100%;
   aspect-ratio: 0.736 / 1;
@@ -697,7 +747,8 @@ a {
   margin: 0 auto;
 }
 
-.work-card-wide .work-image-frame > img:not(.play-icon) {
+.work-card-wide .work-image-frame > img:not(.play-icon),
+.work-card-wide .work-image-frame > picture > img:not(.play-icon) {
   width: 100%;
   aspect-ratio: 3024 / 1590;
   object-fit: cover;
@@ -871,6 +922,22 @@ a {
   height: auto;
   border: 0;
   background: #000;
+}
+
+.detail-video-poster {
+  border: 0;
+  background: #000;
+  cursor: pointer;
+  position: relative;
+}
+
+.detail-video-poster .play-icon {
+  width: clamp(52px, 5.2vw, 86px);
+  opacity: 0.9;
+}
+
+.detail-video-poster:hover .play-icon {
+  animation: playIconFloat 760ms ease-in-out infinite;
 }
 
 .detail-image-frame {
@@ -1152,6 +1219,8 @@ a {
   min-height: auto;
   padding: 210px clamp(24px, 4vw, 62px) 148px;
   background: var(--page-bg);
+  content-visibility: auto;
+  contain-intrinsic-size: 1200px;
 }
 
 .film-demo {
